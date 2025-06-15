@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masjid Al Hidayah - PT. Yamaha Indonesia</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+            background-image: url('https://images.unsplash.com/photo-1554321522-51e48b25574a?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        .next-prayer {
+            background: linear-gradient(to right, #2dd4bf, #34d399);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px -5px rgba(52, 211, 153, 0.5);
+        }
+        .icon { width: 24px; height: 24px; stroke-width: 2; }
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+            background-color: rgba(100, 116, 139, 0.7);
+        }
+        .modal-content { transition: transform 0.3s ease; }
+        .horizontal-scroll::-webkit-scrollbar { height: 4px; }
+        .horizontal-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
+        .horizontal-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+        <!-- Header Section -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">Masjid Al Hidayah</h1>
+            <p class="text-xl md:text-2xl text-slate-600 mt-2">PT. Yamaha Indonesia Motor Manufacturing</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+             <!-- Prayer Times Card -->
+            <div class="card rounded-2xl p-6 lg:col-span-2">
+                <h2 class="text-xl font-semibold mb-1 text-slate-800">Jadwal Sholat Hari Ini</h2>
+                <p id="location-info" class="text-sm text-emerald-600 mb-4">Mendeteksi lokasi...</p>
+                <div id="prayer-times-container" class="horizontal-scroll flex justify-center space-x-4 overflow-x-auto pb-4">
+                     <div class="animate-pulse bg-slate-200 rounded-lg h-24 w-28 flex-shrink-0"></div>
+                </div>
+            </div>
+
+            <!-- Live Stream Card -->
+            <div class="card rounded-2xl p-6 lg:col-span-2">
+                <div class="flex items-center mb-4">
+                    <svg class="icon mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <h2 class="text-xl font-semibold text-slate-800">Siaran Langsung Masjidil Haram</h2>
+                </div>
+                <div class="aspect-video w-full">
+                    <iframe class="w-full h-full rounded-lg shadow-inner" src="https://www.youtube.com/embed/2Gub8-cSH9c?autoplay=1&mute=1&loop=1&playlist=2Gub8-cSH9c" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <!-- Daily Quote Card -->
+             <div class="card rounded-2xl p-6 flex flex-col justify-center lg:col-span-2">
+                <div class="flex items-center mb-4">
+                    <svg class="icon mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 5.523-4.477 10-10 10S1 17.523 1 12 5.477 2 11 2s10 4.477 10 10z"></path></svg>
+                    <h2 class="text-xl font-semibold text-slate-800">Kutipan Hari Ini</h2>
+                </div>
+                <blockquote class="text-md italic text-slate-700 border-l-4 border-emerald-500 pl-4">
+                    <p id="quote-text">Memuat kutipan...</p>
+                </blockquote>
+                <footer class="mt-3 text-right text-slate-500 text-sm">— <span id="quote-author">...</span></footer>
+            </div>
+
+            <!-- Left Column -->
+            <div class="space-y-8">
+                <!-- Upcoming Activities Card -->
+                <div class="card rounded-2xl p-6">
+                    <div class="flex items-center mb-4"><svg class="icon mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><h2 class="text-xl font-semibold text-slate-800">Kegiatan Mendatang</h2></div>
+                    <div id="kegiatan-container" class="space-y-4 text-slate-600"><div class="animate-pulse"><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div></div></div>
+                </div>
+                <!-- Friday Schedule Card -->
+                <div class="card rounded-2xl p-6">
+                    <div class="flex items-center mb-4"><svg class="icon mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21v-1.5a2.5 2.5 0 00-5 0V21M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h2 class="text-xl font-semibold text-slate-800">Jadwal Petugas Jum'at</h2></div>
+                    <div id="petugas-jumat-container" class="space-y-4 text-slate-600"><div class="animate-pulse"><div class="h-4 bg-slate-200 rounded w-full mb-2"></div></div></div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+             <div class="space-y-8">
+                <!-- Financial Report Card -->
+                <div class="card rounded-2xl p-6">
+                     <div class="flex items-center mb-4"><svg class="icon mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg><h2 class="text-xl font-semibold text-slate-800">Laporan Keuangan</h2></div>
+                    <p id="laporan-periode" class="text-sm text-slate-500 mb-3">Memuat data...</p>
+                    <div id="laporan-container" class="space-y-3 text-lg text-slate-700"><div class="animate-pulse"><div class="h-5 bg-slate-200 rounded w-full"></div></div></div>
+                </div>
+
+                 <!-- DKM Structure Card -->
+                <div class="card rounded-2xl p-6">
+                    <div class="flex items-center mb-4"><svg class="icon mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg><h2 class="text-xl font-semibold text-slate-800">Susunan Pengurus DKM</h2></div>
+                    <div id="pengurus-dkm-container" class="space-y-3 text-slate-600"><div class="animate-pulse"><div class="h-4 bg-slate-200 rounded w-full mb-2"></div></div></div>
+                </div>
+             </div>
+        </main>
+        
+        <footer class="text-center mt-12 text-slate-500 text-sm">
+            <p>&copy; 2025 DKM Al Hidayah - PT. YIMM. Dikembangkan dengan ❤️.</p>
+            <button id="admin-login-btn" class="mt-2 text-emerald-600 hover:text-emerald-500 transition font-semibold">Login Admin</button>
+        </footer>
+    </div>
+    
+    <!-- Modals (Password & Admin Panel) -->
+    <div id="password-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-content bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm">
+            <h3 class="text-2xl font-bold text-center mb-6">Login Admin</h3>
+            <input type="password" id="password-input" class="w-full p-3 bg-slate-100 border border-slate-300 rounded-lg" placeholder="Masukkan Kata Sandi">
+            <p id="password-error" class="text-red-500 text-sm mt-2 text-center h-5"></p>
+            <div class="flex justify-end gap-4 mt-6">
+                <button id="password-cancel-btn" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg">Batal</button>
+                <button id="password-submit-btn" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white">Masuk</button>
+            </div>
+        </div>
+    </div>
+    <div id="admin-panel-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-content bg-white rounded-2xl shadow-xl p-8 w-full max-w-3xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-bold">Panel Admin</h3><button id="admin-panel-close-btn" class="text-3xl text-slate-400 hover:text-slate-600">&times;</button></div>
+            <div class="space-y-6">
+                <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl"><h4 class="text-xl font-semibold mb-4">Manajemen Pengurus DKM</h4><form id="pengurus-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"><input type="text" id="pengurus-nama" placeholder="Nama Lengkap" class="w-full p-3 bg-white border rounded-lg md:col-span-2" required><input type="text" id="pengurus-jabatan" placeholder="Jabatan" class="w-full p-3 bg-white border rounded-lg" required><button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white md:col-span-3">Tambah Pengurus</button></form><div id="pengurus-admin-list" class="space-y-2"></div></div>
+                <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl"><h4 class="text-xl font-semibold mb-4">Tambah Jadwal Petugas Jum'at</h4><form id="petugas-jumat-form" class="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="date" id="petugas-tanggal" class="w-full p-3 bg-white border rounded-lg" required><input type="text" id="petugas-khatib" placeholder="Nama Khatib" class="w-full p-3 bg-white border rounded-lg" required><input type="text" id="petugas-imam" placeholder="Nama Imam" class="w-full p-3 bg-white border rounded-lg" required><input type="text" id="petugas-muadzin" placeholder="Nama Muadzin" class="w-full p-3 bg-white border rounded-lg" required><button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white md:col-span-2">Simpan Jadwal</button></form></div>
+                <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl"><h4 class="text-xl font-semibold mb-4">Tambah Kegiatan Baru</h4><form id="kegiatan-form" class="space-y-4"><input type="text" id="kegiatan-title" placeholder="Nama Kegiatan" class="w-full p-3 bg-white border rounded-lg" required><select id="kegiatan-jenis" class="w-full p-3 bg-white border rounded-lg"><option value="satu-kali">Kegiatan Satu Kali</option><option value="rutin">Kegiatan Rutin</option></select><div id="kegiatan-input-satu-kali"><div class="grid grid-cols-2 gap-4"><input type="date" id="kegiatan-tanggal" class="w-full p-3 bg-white border rounded-lg"><input type="time" id="kegiatan-jam" class="w-full p-3 bg-white border rounded-lg"></div></div><div id="kegiatan-input-rutin" class="hidden"><input type="text" id="kegiatan-deskripsi-rutin" placeholder="Waktu (Cth: Setiap Sabtu, Ba'da Isya)" class="w-full p-3 bg-white border rounded-lg"></div><button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white">Simpan Kegiatan</button></form></div>
+                <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl"><h4 class="text-xl font-semibold mb-4">Perbarui Laporan Keuangan</h4><form id="keuangan-form" class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="md:col-span-2"><label for="keuangan-periode" class="text-sm font-medium text-slate-600">Periode</label><input type="month" id="keuangan-periode" class="w-full mt-1 p-3 bg-white border rounded-lg" required></div><input type="number" id="keuangan-pemasukan" placeholder="Pemasukan (Rp)" class="w-full p-3 bg-white border rounded-lg" required><input type="number" id="keuangan-pengeluaran" placeholder="Pengeluaran (Rp)" class="w-full p-3 bg-white border rounded-lg" required><button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white md:col-span-2">Simpan Laporan</button></form></div>
+            </div>
+            <p id="admin-success-msg" class="text-green-600 text-center mt-4 h-5"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, where, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Config and Initialization ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let db, auth;
+        let isAuthReady = false;
+        
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch(e) { console.error("Error initializing Firebase:", e); }
+
+        // --- Authentication ---
+        onAuthStateChanged(auth, (user) => {
+            if (user && !isAuthReady) {
+                isAuthReady = true;
+                console.log("Authentication successful, fetching data.");
+                initializeDataListeners();
+            }
+        });
+
+        async function performSignIn() {
+            try {
+                if (auth.currentUser) return; // Already signed in
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication failed during initial sign-in:", error);
+                document.body.innerHTML = `<div class="text-slate-800 text-center p-8">Gagal melakukan otentikasi. Muat ulang halaman.</div>`;
+            }
+        }
+        
+        function initializeDataListeners() {
+            listenToKegiatan();
+            listenToLaporanKeuangan();
+            listenToPetugasJumat();
+            listenToPengurusDKM();
+        }
+
+        // --- DOM Elements ---
+        const dom = {
+            prayerTimesContainer: document.getElementById('prayer-times-container'), locationInfo: document.getElementById('location-info'),
+            quoteText: document.getElementById('quote-text'), quoteAuthor: document.getElementById('quote-author'),
+            kegiatanContainer: document.getElementById('kegiatan-container'),
+            laporanContainer: document.getElementById('laporan-container'), laporanPeriode: document.getElementById('laporan-periode'),
+            petugasJumatContainer: document.getElementById('petugas-jumat-container'),
+            pengurusDkmContainer: document.getElementById('pengurus-dkm-container'), pengurusAdminList: document.getElementById('pengurus-admin-list'),
+            passwordModal: document.getElementById('password-modal'), adminPanelModal: document.getElementById('admin-panel-modal'),
+        };
+
+        // --- Admin Logic ---
+        const ADMIN_PASSWORD = "yamaha"; 
+        
+        function setupAdminModals() {
+            document.getElementById('admin-login-btn').addEventListener('click', () => { dom.passwordModal.classList.remove('hidden'); });
+            document.getElementById('password-cancel-btn').addEventListener('click', () => { dom.passwordModal.classList.add('hidden'); });
+            document.getElementById('admin-panel-close-btn').addEventListener('click', () => { dom.adminPanelModal.classList.add('hidden'); });
+            
+            document.getElementById('password-submit-btn').addEventListener('click', () => {
+                if (document.getElementById('password-input').value === ADMIN_PASSWORD) {
+                    dom.passwordModal.classList.add('hidden'); dom.adminPanelModal.classList.remove('hidden');
+                } else { document.getElementById('password-error').textContent = "Kata sandi salah."; }
+            });
+            document.getElementById('kegiatan-jenis').addEventListener('change', (e) => {
+                const isRutin = e.target.value === 'rutin';
+                document.getElementById('kegiatan-input-satu-kali').classList.toggle('hidden', isRutin);
+                document.getElementById('kegiatan-input-rutin').classList.toggle('hidden', !isRutin);
+            });
+            setupFormSubmissions();
+        }
+        
+        function setupFormSubmissions() {
+            // Pengurus DKM Form
+            document.getElementById('pengurus-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/pengurusDKM`), {
+                        nama: document.getElementById('pengurus-nama').value,
+                        jabatan: document.getElementById('pengurus-jabatan').value,
+                    });
+                    e.target.reset(); showAdminSuccess("Pengurus DKM berhasil ditambahkan!");
+                } catch (error) { alert("Gagal menyimpan data pengurus."); }
+            });
+            // Petugas Jumat Form
+            document.getElementById('petugas-jumat-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/petugasJumat`), {
+                        tanggal: document.getElementById('petugas-tanggal').value, khatib: document.getElementById('petugas-khatib').value,
+                        imam: document.getElementById('petugas-imam').value, muadzin: document.getElementById('petugas-muadzin').value,
+                    });
+                    e.target.reset(); showAdminSuccess("Jadwal Jum'at berhasil disimpan!");
+                } catch (error) { alert("Gagal menyimpan jadwal."); }
+            });
+
+            // Kegiatan Form
+            document.getElementById('kegiatan-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const jenis = document.getElementById('kegiatan-jenis').value;
+                let data = { title: document.getElementById('kegiatan-title').value, jenis: jenis };
+                if (jenis === 'rutin') { data.deskripsi = document.getElementById('kegiatan-deskripsi-rutin').value; if (!data.deskripsi) { alert('Deskripsi kegiatan rutin harus diisi.'); return; } } 
+                else { data.tanggal = document.getElementById('kegiatan-tanggal').value; data.jam = document.getElementById('kegiatan-jam').value; if (!data.tanggal) { alert('Tanggal kegiatan harus diisi.'); return; } }
+                try { await addDoc(collection(db, `artifacts/${appId}/public/data/kegiatan`), data); e.target.reset(); showAdminSuccess("Kegiatan berhasil disimpan!"); } 
+                catch (error) { alert("Gagal menyimpan kegiatan."); }
+            });
+
+            // Keuangan Form
+            document.getElementById('keuangan-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const [year, month] = document.getElementById('keuangan-periode').value.split('-');
+                try {
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/keuangan/laporan`), {
+                        periode: new Date(year, month - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+                        pemasukan: parseFloat(document.getElementById('keuangan-pemasukan').value),
+                        pengeluaran: parseFloat(document.getElementById('keuangan-pengeluaran').value),
+                    });
+                    e.target.reset(); showAdminSuccess("Laporan keuangan berhasil disimpan!");
+                } catch (error) { alert("Gagal menyimpan laporan."); }
+            });
+        }
+
+        function showAdminSuccess(message) {
+            const msgEl = document.getElementById('admin-success-msg');
+            msgEl.textContent = message;
+            setTimeout(() => { msgEl.textContent = ''; }, 3000);
+        }
+
+        // --- Data Fetching and Display from Firestore ---
+        function listenToPengurusDKM() {
+            if (!db) return;
+            const q = query(collection(db, `artifacts/${appId}/public/data/pengurusDKM`));
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) { dom.pengurusDkmContainer.innerHTML = '<p>Data kepengurusan belum tersedia.</p>'; } 
+                else {
+                    dom.pengurusDkmContainer.innerHTML = '';
+                    snapshot.forEach((doc) => {
+                        const p = doc.data();
+                        const div = document.createElement('div');
+                        div.className = 'flex justify-between items-center text-sm py-1 border-b border-slate-100 last:border-0';
+                        div.innerHTML = `<span class="font-medium">${p.nama}</span><span class="text-emerald-700">${p.jabatan}</span>`;
+                        dom.pengurusDkmContainer.appendChild(div);
+                    });
+                }
+                dom.pengurusAdminList.innerHTML = '';
+                 snapshot.forEach((doc) => {
+                    const p = doc.data();
+                    const div = document.createElement('div');
+                    div.className = 'flex justify-between items-center bg-white p-2 rounded-lg';
+                    div.innerHTML = `<div><p class="font-semibold">${p.nama}</p><p class="text-sm text-slate-500">${p.jabatan}</p></div><button data-id="${doc.id}" class="delete-pengurus-btn text-red-500 hover:text-red-700 font-bold text-2xl px-2">&times;</button>`;
+                    dom.pengurusAdminList.appendChild(div);
+                });
+                document.querySelectorAll('.delete-pengurus-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = e.target.dataset.id;
+                        try { await deleteDoc(doc(db, `artifacts/${appId}/public/data/pengurusDKM`, id)); showAdminSuccess('Data pengurus berhasil dihapus.'); } 
+                        catch (err) { console.error("Failed to delete member", err); alert("Gagal menghapus data."); }
+                    });
+                });
+
+            }, (error) => { dom.pengurusDkmContainer.innerHTML = `<p class="text-red-500">Gagal memuat data.</p>`; });
+        }
+        function listenToPetugasJumat() {
+            if(!db) return;
+            const q = query(collection(db, `artifacts/${appId}/public/data/petugasJumat`), where("tanggal", ">=", new Date().toISOString().split('T')[0]), orderBy("tanggal"), limit(4));
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) { dom.petugasJumatContainer.innerHTML = '<p>Belum ada jadwal akan datang.</p>'; return; }
+                dom.petugasJumatContainer.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const jadwal = doc.data();
+                    const div = document.createElement('div');
+                    div.className = 'pb-3 border-b border-slate-200 last:border-b-0';
+                    div.innerHTML = `<p class="font-bold text-emerald-600">${formatDate(jadwal.tanggal)}</p><div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-1 mt-1 text-sm"><div><strong class="text-slate-500">Khatib:</strong> ${jadwal.khatib}</div><div><strong class="text-slate-500">Imam:</strong> ${jadwal.imam}</div><div><strong class="text-slate-500">Muadzin:</strong> ${jadwal.muadzin}</div></div>`;
+                    dom.petugasJumatContainer.appendChild(div);
+                });
+            }, (error) => { dom.petugasJumatContainer.innerHTML = `<p class="text-red-500">Gagal memuat jadwal.</p>`; });
+        }
+        function listenToKegiatan() {
+            if(!db) return;
+            const q = query(collection(db, `artifacts/${appId}/public/data/kegiatan`));
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) { dom.kegiatanContainer.innerHTML = '<p>Belum ada kegiatan.</p>'; return; }
+                dom.kegiatanContainer.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const kegiatan = doc.data();
+                    let waktuText = (kegiatan.jenis === 'rutin') ? kegiatan.deskripsi : `${formatDate(kegiatan.tanggal)} ${kegiatan.jam ? '- ' + kegiatan.jam + ' WIB' : ''}`;
+                    const div = document.createElement('div');
+                    div.innerHTML = `<p class="font-semibold text-slate-800">${kegiatan.title}</p><p class="text-sm">${waktuText}</p>`;
+                    dom.kegiatanContainer.appendChild(div);
+                });
+            }, (error) => { dom.kegiatanContainer.innerHTML = `<p class="text-red-500">Gagal memuat kegiatan.</p>`; });
+        }
+        function listenToLaporanKeuangan() {
+            if(!db) return;
+            const docRef = doc(db, `artifacts/${appId}/public/data/keuangan/laporan`);
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const d = docSnap.data();
+                    const s = d.pemasukan - d.pengeluaran;
+                    dom.laporanPeriode.textContent = `Periode: ${d.periode || 'N/A'}`;
+                    dom.laporanContainer.innerHTML = `<div class="flex justify-between"><span>Pemasukan:</span><span class="font-semibold text-green-600">Rp ${d.pemasukan.toLocaleString('id-ID')}</span></div><div class="flex justify-between"><span>Pengeluaran:</span><span class="font-semibold text-amber-600">Rp ${d.pengeluaran.toLocaleString('id-ID')}</span></div><hr class="border-slate-200"><div class="flex justify-between font-bold"><span>Saldo:</span><span>Rp ${s.toLocaleString('id-ID')}</span></div>`;
+                } else { dom.laporanPeriode.textContent = 'Data tidak ditemukan'; dom.laporanContainer.innerHTML = '<p>Belum ada laporan keuangan.</p>'; }
+            }, (error) => { dom.laporanContainer.innerHTML = `<p class="text-red-500">Gagal memuat laporan.</p>`; });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // --- Original Static Features ---
+        function displayDailyQuote() {
+            const dailyQuotes = [{ quote: "Barangsiapa yang menunjuki kepada kebaikan maka dia akan mendapatkan pahala seperti pahala orang yang mengerjakannya.", author: "HR. Muslim" }];
+            const quote = dailyQuotes[new Date().getFullYear() % dailyQuotes.length];
+            dom.quoteText.textContent = `“${quote.quote}”`; dom.quoteAuthor.textContent = quote.author;
+        }
+
+        async function fetchPrayerTimes(lat, lon) {
+            const date = new Date();
+            const apiUrl = `https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}?latitude=${lat}&longitude=${lon}&method=2`;
+            try {
+                const res = await fetch(apiUrl); const data = await res.json();
+                if (data.code === 200) {
+                    dom.locationInfo.textContent = `Waktu untuk wilayah ${data.data.meta.timezone.replace(/[/_]/g, ', ')}`;
+                    displayPrayerTimes(data.data.timings);
+                } else throw new Error("API Error");
+            } catch (error) { dom.prayerTimesContainer.innerHTML = `<p class="text-red-500">Gagal memuat jadwal.</p>`; }
+        }
+
+        function displayPrayerTimes(timings) {
+            dom.prayerTimesContainer.innerHTML = '';
+            const prayers = { 'Subuh': timings.Fajr, 'Dzuhur': timings.Dhuhr, 'Ashar': timings.Asr, 'Maghrib': timings.Maghrib, 'Isya': timings.Isha };
+            const now = `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
+            let nextFound = false;
+            for (const [name, time] of Object.entries(prayers)) {
+                const el = document.createElement('div');
+                el.className = 'flex-shrink-0 flex flex-col items-center justify-center p-2 rounded-lg bg-slate-100 transition-all duration-300 h-24 w-28';
+                if (time > now && !nextFound) { el.classList.add('next-prayer', 'text-white'); nextFound = true; }
+                el.innerHTML = `<span class="font-semibold text-base">${name}</span><span class="font-mono text-xl mt-1">${time}</span>`;
+                dom.prayerTimesContainer.appendChild(el);
+            }
+            if (!nextFound && dom.prayerTimesContainer.firstChild) { dom.prayerTimesContainer.firstChild.classList.add('next-prayer', 'text-white'); }
+        }
+
+        // --- Initialize the App ---
+        document.addEventListener('DOMContentLoaded', () => {
+            displayDailyQuote();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => fetchPrayerTimes(pos.coords.latitude, pos.coords.longitude), () => fetchPrayerTimes(-6.2088, 106.8456));
+            } else { fetchPrayerTimes(-6.2088, 106.8456); } 
+            setupAdminModals();
+            performSignIn(); // Start authentication
+        });
+
+    </script>
+</body>
+</html>
