@@ -158,46 +158,59 @@
     <script type="module">
         // Firebase SDK imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, where, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Config and Initialization ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        let db, auth;
-        let isAuthReady = false;
+        // --- KONFIGURASI FIREBASE ANDA ---
+        // PENTING: Ganti nilai di bawah ini dengan konfigurasi dari proyek Firebase Anda sendiri!
+        const firebaseConfig = {
+          apiKey: "AIzaSyCeMzZtX2w-ldfPkjtqKTp3Yuo60AQ7kao",
+          authDomain: "mesjidalhidayah-de6bf.firebaseapp.com",
+          projectId: "mesjidalhidayah-de6bf",
+          storageBucket: "mesjidalhidayah-de6bf.firebasestorage.app",
+          messagingSenderId: "338352649975",
+          appId: "1:338352649975:web:2df9f3c2506916d646c5f2"
+        };
+        // ------------------------------------
         
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-        } catch(e) { console.error("Error initializing Firebase:", e); }
+        // --- Inisialisasi Firebase ---
+        let db, auth;
+        // This check prevents the app from crashing if firebaseConfig is not filled out
+        if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "GANTI_DENGAN_API_KEY_ANDA") {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+            } catch(e) { 
+                console.error("Error initializing Firebase.", e); 
+                document.body.innerHTML = `<div class="p-8 text-center text-red-800 bg-red-100">Error: Konfigurasi Firebase tidak valid.</div>`;
+            }
+        } else {
+             document.body.innerHTML = `
+                <div class="h-screen w-screen flex flex-col items-center justify-center bg-red-100 text-red-800 p-8">
+                    <h1 class="text-2xl font-bold mb-4">Kesalahan Konfigurasi</h1>
+                    <p class="text-center">Konfigurasi Firebase belum diatur. Silakan salin kunci dari proyek Firebase Anda dan tempelkan ke dalam variabel <strong>firebaseConfig</strong> di file index.html.</p>
+                </div>
+            `;
+        }
 
         // --- Authentication ---
-        onAuthStateChanged(auth, (user) => {
-            if (user && !isAuthReady) {
-                isAuthReady = true;
-                console.log("Authentication successful, fetching data.");
-                initializeDataListeners();
-            }
-        });
-
         async function performSignIn() {
+            if (!auth) return; // Stop if Firebase isn't initialized
             try {
-                if (auth.currentUser) return; // Already signed in
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
+                if (auth.currentUser) {
+                    initializeDataListeners();
+                    return;
                 }
+                await signInAnonymously(auth);
+                initializeDataListeners();
             } catch (error) {
-                console.error("Authentication failed during initial sign-in:", error);
-                document.body.innerHTML = `<div class="text-slate-800 text-center p-8">Gagal melakukan otentikasi. Muat ulang halaman.</div>`;
+                console.error("Authentication failed:", error);
             }
         }
         
         function initializeDataListeners() {
+            if (!db) return;
             listenToKegiatan();
             listenToLaporanKeuangan();
             listenToPetugasJumat();
@@ -237,46 +250,40 @@
         }
         
         function setupFormSubmissions() {
-            // Pengurus DKM Form
             document.getElementById('pengurus-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 try {
-                    await addDoc(collection(db, `artifacts/${appId}/public/data/pengurusDKM`), {
+                    await addDoc(collection(db, "pengurusDKM"), {
                         nama: document.getElementById('pengurus-nama').value,
                         jabatan: document.getElementById('pengurus-jabatan').value,
                     });
                     e.target.reset(); showAdminSuccess("Pengurus DKM berhasil ditambahkan!");
                 } catch (error) { alert("Gagal menyimpan data pengurus."); }
             });
-            // Petugas Jumat Form
             document.getElementById('petugas-jumat-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 try {
-                    await addDoc(collection(db, `artifacts/${appId}/public/data/petugasJumat`), {
+                    await addDoc(collection(db, "petugasJumat"), {
                         tanggal: document.getElementById('petugas-tanggal').value, khatib: document.getElementById('petugas-khatib').value,
                         imam: document.getElementById('petugas-imam').value, muadzin: document.getElementById('petugas-muadzin').value,
                     });
                     e.target.reset(); showAdminSuccess("Jadwal Jum'at berhasil disimpan!");
                 } catch (error) { alert("Gagal menyimpan jadwal."); }
             });
-
-            // Kegiatan Form
             document.getElementById('kegiatan-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const jenis = document.getElementById('kegiatan-jenis').value;
                 let data = { title: document.getElementById('kegiatan-title').value, jenis: jenis };
                 if (jenis === 'rutin') { data.deskripsi = document.getElementById('kegiatan-deskripsi-rutin').value; if (!data.deskripsi) { alert('Deskripsi kegiatan rutin harus diisi.'); return; } } 
                 else { data.tanggal = document.getElementById('kegiatan-tanggal').value; data.jam = document.getElementById('kegiatan-jam').value; if (!data.tanggal) { alert('Tanggal kegiatan harus diisi.'); return; } }
-                try { await addDoc(collection(db, `artifacts/${appId}/public/data/kegiatan`), data); e.target.reset(); showAdminSuccess("Kegiatan berhasil disimpan!"); } 
+                try { await addDoc(collection(db, "kegiatan"), data); e.target.reset(); showAdminSuccess("Kegiatan berhasil disimpan!"); } 
                 catch (error) { alert("Gagal menyimpan kegiatan."); }
             });
-
-            // Keuangan Form
             document.getElementById('keuangan-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const [year, month] = document.getElementById('keuangan-periode').value.split('-');
                 try {
-                    await setDoc(doc(db, `artifacts/${appId}/public/data/keuangan/laporan`), {
+                    await setDoc(doc(db, "keuangan", "laporan"), {
                         periode: new Date(year, month - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
                         pemasukan: parseFloat(document.getElementById('keuangan-pemasukan').value),
                         pengeluaran: parseFloat(document.getElementById('keuangan-pengeluaran').value),
@@ -295,7 +302,7 @@
         // --- Data Fetching and Display from Firestore ---
         function listenToPengurusDKM() {
             if (!db) return;
-            const q = query(collection(db, `artifacts/${appId}/public/data/pengurusDKM`));
+            const q = query(collection(db, "pengurusDKM"));
             onSnapshot(q, (snapshot) => {
                 if (snapshot.empty) { dom.pengurusDkmContainer.innerHTML = '<p>Data kepengurusan belum tersedia.</p>'; } 
                 else {
@@ -319,16 +326,15 @@
                 document.querySelectorAll('.delete-pengurus-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         const id = e.target.dataset.id;
-                        try { await deleteDoc(doc(db, `artifacts/${appId}/public/data/pengurusDKM`, id)); showAdminSuccess('Data pengurus berhasil dihapus.'); } 
-                        catch (err) { console.error("Failed to delete member", err); alert("Gagal menghapus data."); }
+                        try { await deleteDoc(doc(db, "pengurusDKM", id)); showAdminSuccess('Data pengurus berhasil dihapus.'); } 
+                        catch (err) { alert("Gagal menghapus data."); }
                     });
                 });
-
             }, (error) => { dom.pengurusDkmContainer.innerHTML = `<p class="text-red-500">Gagal memuat data.</p>`; });
         }
         function listenToPetugasJumat() {
             if(!db) return;
-            const q = query(collection(db, `artifacts/${appId}/public/data/petugasJumat`), where("tanggal", ">=", new Date().toISOString().split('T')[0]), orderBy("tanggal"), limit(4));
+            const q = query(collection(db, "petugasJumat"), where("tanggal", ">=", new Date().toISOString().split('T')[0]), orderBy("tanggal"), limit(4));
             onSnapshot(q, (snapshot) => {
                 if (snapshot.empty) { dom.petugasJumatContainer.innerHTML = '<p>Belum ada jadwal akan datang.</p>'; return; }
                 dom.petugasJumatContainer.innerHTML = '';
@@ -343,7 +349,7 @@
         }
         function listenToKegiatan() {
             if(!db) return;
-            const q = query(collection(db, `artifacts/${appId}/public/data/kegiatan`));
+            const q = query(collection(db, "kegiatan"));
             onSnapshot(q, (snapshot) => {
                 if (snapshot.empty) { dom.kegiatanContainer.innerHTML = '<p>Belum ada kegiatan.</p>'; return; }
                 dom.kegiatanContainer.innerHTML = '';
@@ -358,7 +364,7 @@
         }
         function listenToLaporanKeuangan() {
             if(!db) return;
-            const docRef = doc(db, `artifacts/${appId}/public/data/keuangan/laporan`);
+            const docRef = doc(db, "keuangan", "laporan");
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const d = docSnap.data();
